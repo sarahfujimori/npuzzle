@@ -1,4 +1,5 @@
 import copy
+
 def LoadFromFile(filepath):
     with open(filepath, "r") as f:
         data = f.readlines()
@@ -17,7 +18,10 @@ def LoadFromFile(filepath):
 
 def DebugPrint(state):
     for row in state:
-        print(row)
+        line = ""
+        for num in row:
+            line += str(num) + '\t'
+        print(line)
 
 # Takes in state and positions of tiles to be swapped
 # Returns new state
@@ -39,25 +43,60 @@ def ComputeNeighbors(state):
     # find neighbor tiles of 0
     neighbors = []
     if hole_r < N - 1:
-        neighbors.append(swap_tiles(state, hole_r, hole_c, hole_r + 1, hole_c))
+        neighbors.append((state[hole_r + 1][hole_c], swap_tiles(state, hole_r, hole_c, hole_r + 1, hole_c)))
     if hole_r > 0:
-        neighbors.append(swap_tiles(state, hole_r, hole_c, hole_r - 1, hole_c))
+        neighbors.append((state[hole_r - 1][hole_c], swap_tiles(state, hole_r, hole_c, hole_r - 1, hole_c)))
     if hole_c < N - 1:
-        neighbors.append(swap_tiles(state, hole_r, hole_c, hole_r, hole_c + 1))
+        neighbors.append((state[hole_r][hole_c + 1], swap_tiles(state, hole_r, hole_c, hole_r, hole_c + 1)))
     if hole_c > 0:
-        neighbors.append(swap_tiles(state, hole_r, hole_c, hole_r, hole_c - 1))
+        neighbors.append((state[hole_r][hole_c - 1], swap_tiles(state, hole_r, hole_c, hole_r, hole_c - 1)))
     return neighbors
+
+def flatten(nested_list):
+    current_list = []
+    def flatten_rec(nested_list):
+        if not isinstance(nested_list, list):
+            current_list.append(nested_list)
+        else:
+            for i in nested_list:
+                flatten_rec(i)
+        return current_list
+    return flatten_rec(nested_list)
+
+def IsGoal(state):
+    return flatten(state) == list(range(1, len(state)**2)) + [0]
+
+def BFS(state):
+    frontier = [(0, state)]
+    discovered = set(tuple(flatten(state)))
+    parents = {(0, tuple(flatten(state))): None}
+    path = []
+    while len(frontier) != 0:
+        current_state = frontier.pop(0)
+        discovered.add(tuple(flatten(current_state[1])))
+        if IsGoal(current_state[1]):
+            while parents.get((current_state[0], tuple(flatten(current_state[1])))) != None:
+                path.insert(0, current_state[0])
+                current_state = parents.get((current_state[0], tuple(flatten(current_state[1]))))
+            return path
+        for neighbor in ComputeNeighbors(current_state[1]):
+            if tuple(flatten(neighbor[1])) not in discovered:
+                frontier.append(neighbor)
+                discovered.add(tuple(flatten(neighbor[1])))
+                parents.update({(neighbor[0], tuple(flatten(neighbor[1]))): current_state})
+    print("FAIL")
+    return None
 
 table = LoadFromFile("test_puzzle.txt")
 DebugPrint(table)
-print(20*"-")
-# DebugPrint(swap_tiles(table, 3, 3, 2, 3))
-# print("State: " + 20*"-")
-# DebugPrint(table)
+# print(20*"-")
 table = swap_tiles(table, 3, 3, 2, 2)
 DebugPrint(table)
-print("Neighbors: " + 40*"-")
-n = ComputeNeighbors(table)
-for i in n:
-    DebugPrint(i)
-    print(40*"-")
+# DebugPrint(table)
+# print("Neighbors: " + 40*"-")
+# n = ComputeNeighbors(table)
+# for i in n:
+#     print(i[0])
+#     DebugPrint(i[1])
+#     print(40*"-")
+print(BFS(table))
