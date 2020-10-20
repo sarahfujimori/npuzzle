@@ -123,7 +123,36 @@ def DFS(state):
     return None
 
 def BidirectionalSearch(state):
-    
+    target = target(len(state))
+    frontier = [(0, state)]
+    backtier = [(0, target)]
+    discovered = set([state])
+    parents = {(0, state): None}
+    path = []
+
+
+    print("FAIL")
+    return None
+
+#returns state representation of target
+def target(n):
+    l = [list(range(n * i + 1, n * (i + 1) + 1)) for i in range(n)]
+    l[-1][-1] = 0
+    return tuple(tuple(row) for row in l)
+
+def BFS_iteration(frontier, discovered, targets, parents):
+    current_state = frontier.pop(0)
+    discovered.add(current_state[1])
+    if current_state in targets
+            
+
+    for neighbor in ComputeNeighbors(current_state[1]):
+        # print(neighbor[0])
+        if neighbor[1] not in discovered:
+            frontier.append(neighbor)
+            discovered.add(neighbor[1])
+            parents.update({(neighbor[0], neighbor[1]): current_state})
+
 
 # Provides heuristic for AStar function
 # Returns: sum of L1 distances to goal for each block
@@ -194,3 +223,5 @@ DebugPrint(table)
 result = AStar(table)
 print(result)
 print(len(result))
+print(target(2))
+print(target(4))
