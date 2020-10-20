@@ -122,6 +122,9 @@ def DFS(state):
     print("FAIL")
     return None
 
+def BidirectionalSearch(state):
+    
+
 # Provides heuristic for AStar function
 # Returns: sum of L1 distances to goal for each block
 def h(state):
