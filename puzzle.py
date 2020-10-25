@@ -159,17 +159,13 @@ def BidirectionalSearch(state):
             intersect = list(discovered_frontier.intersection(discovered_backtier))[0]
             
             if intersect == current_state_frontier[1]:
-
-            else: 
-
-            
-            while parents_frontier.get((current_state_frontier[0], current_state_frontier[1])) != None:
-                path.insert(0, current_state_frontier[0])
-                current_state_frontier = parents_frontier.get((current_state_frontier[0], current_state_frontier[1]))
-
-            while parents_backtier.get((current_state_backtier[0], current_state_backtier[1])) != None:
-                path.insert(0, current_state_backtier[0])
-                current_state_backtier = parents_backtier.get((current_state_backtier[0], current_state_backtier[1]))
+                while parents_frontier.get((current_state_frontier[0], current_state_frontier[1])) != None:
+                    path.insert(0, current_state_frontier[0])
+                    current_state_frontier = parents_frontier.get((current_state_frontier[0], current_state_frontier[1]))
+            else:
+                while parents_backtier.get((current_state_backtier[0], current_state_backtier[1])) != None:
+                    path.insert(0, current_state_backtier[0])
+                    current_state_backtier = parents_backtier.get((current_state_backtier[0], current_state_backtier[1]))
 
             return path
 
@@ -256,6 +252,7 @@ DebugPrint(table)
 #     print(i[0])
 #     DebugPrint(i[1])
 #     print(40*"-")
+print(BFS(table))
 print(BidirectionalSearch(table))
 result = AStar(table)
 # print(result)
