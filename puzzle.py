@@ -122,37 +122,140 @@ def DFS(state):
     print("FAIL")
     return None
 
-def BidirectionalSearch(state):
-    target = target(len(state))
-    frontier = [(0, state)]
-    backtier = [(0, target)]
-    discovered = set([state])
-    parents = {(0, state): None}
-    path = []
-
-
-    print("FAIL")
-    return None
-
 #returns state representation of target
 def target(n):
     l = [list(range(n * i + 1, n * (i + 1) + 1)) for i in range(n)]
     l[-1][-1] = 0
     return tuple(tuple(row) for row in l)
 
-def BFS_iteration(frontier, discovered, targets, parents):
-    current_state = frontier.pop(0)
-    discovered.add(current_state[1])
-    if current_state in targets
-            
+# GOAL: 
+# Get each row of nodes for both frontier and backtier
+# Compare all the nodes from that row
+# If there are any commonalities, then you're done
+# Otherwise, continue to the next row of nodes
 
-    for neighbor in ComputeNeighbors(current_state[1]):
-        # print(neighbor[0])
-        if neighbor[1] not in discovered:
-            frontier.append(neighbor)
-            discovered.add(neighbor[1])
-            parents.update({(neighbor[0], neighbor[1]): current_state})
+def BidirectionalSearch(state):
+    target_1 = target(len(state))
+    frontier = [(0, state)]
+    backtier = [(0, target_1)]
+    discovered_frontier = set([state])
+    discovered_backtier = set([target])
+    parents_frontier = {(0, state): None}
+    parents_backtier = {(0, target): None}
+    path = []
 
+    while len(frontier) != 0 and len(backtier) != 0: 
+        current_state_frontier = frontier.pop(0)
+        current_state_backtier = backtier.pop(0)
+        
+        discovered_1.add(current_state_frontier[1])
+        discovered_2.add(current_state_backtier[1])
+
+        if discovered_1.intersection(discovered_2): 
+            return path
+        else: 
+            BFS(frontier)
+            BFS(backtier)
+    
+        if current_state[1] in discovered_2:
+        '''
+            # Do this later, but remember that "this might now work" - Tyler 2020
+            while parents.get((current_state[0], current_state[1])) != None:
+                path.insert(0, current_state[0])
+                current_state = parents.get((current_state[0], current_state[1]))
+        '''
+        for neighbor in ComputeNeighbors(current_state[1]):
+            # print(neighbor[0])
+            if neighbor[1] not in discovered_1:
+                frontier.append(neighbor)
+                discovered_1.add(neighbor[1])
+                parents.update({(neighbor[0], neighbor[1]): current_state})
+
+
+
+        BFS_iteration(frontier, discovered_frontier, discovered_backtier, parents, path, 'forward')
+        BFS_iteration(backtier, discovered_backtier, discovered_frontier, parents, path, 'backward')
+
+        if discovered_1
+        '''
+        for i in range(len(frontier)): 
+            for j in range(len(backtier)):
+                if frontier[i] == backtier[j]:
+                    DebugPrint(frontier[i])
+                    result = path
+        '''
+
+    return result
+
+
+def BFS_iteration(frontier, discovered_1, discovered_2, parents, path, direction):
+    if direction == 'forward':
+             
+        # BFS in forward direction
+        current = self.src_queue.pop(0)
+        connected_node = self.graph[current]
+             
+        while connected_node:
+            vertex = connected_node.vertex
+                 
+            if not self.src_visited[vertex]:
+                self.src_queue.append(vertex)
+                self.src_visited[vertex] = True
+                self.src_parent[vertex] = current
+                     
+                connected_node = connected_node.next
+    else:
+             
+        # BFS in backward direction
+        current = self.dest_queue.pop(0)
+        connected_node = self.graph[current]
+             
+        while connected_node:
+            vertex = connected_node.vertex
+                 
+            if not self.dest_visited[vertex]:
+                self.dest_queue.append(vertex)
+                self.dest_visited[vertex] = True
+                self.dest_parent[vertex] = current
+                     
+            connected_node = connected_node.next
+
+
+'''
+# GARBAGE SECOND VERSION
+def BFS_iteration(frontier, backtier, discovered, discovered_2, targets, parents, path):
+    pos = 0
+    while len(frontier) != 0 and len(backtier) != 0:
+        current_state_frontier = frontier.pop(0)
+        current_state_backtier = backtier.pop(0)
+        discovered.add(current_state_frontier[1])
+        discovered_2.add(current_state_backtier[1])
+        
+        while(discovered[pos] != discovered_2[pos]): 
+            if current_state_frontier in targets: 
+                while parents.get((current_state_frontier[0], current_state_frontier[1])) != None:
+                    path.insert(0, current_state_frontier[0])
+                    current_state_backtier = parents.get((current_state_frontier[0], current_state_frontier[1]))
+                return path
+
+            if current_state_backtier in targets: 
+                while parents.get((current_state_backtier[0], current_state_backtier[1])) != None:
+                    path.insert(0, current_state_backtier[0])
+                    current_state_backtier = parents.get((current_state_backtier[0], current_state_backtier[1]))
+                return path
+
+            for neighbor in ComputeNeighbors(current_state[1]):
+                # print(neighbor[0])
+                if neighbor[1] not in discovered:
+                    frontier.append(neighbor)
+                    discovered.add(neighbor[1])
+                    parents.update({(neighbor[0], neighbor[1]): current_state})
+
+            pos = pos + 1
+
+    print("FAIL")
+    return None
+'''
 
 # Provides heuristic for AStar function
 # Returns: sum of L1 distances to goal for each block
@@ -220,8 +323,9 @@ DebugPrint(table)
 #     print(i[0])
 #     DebugPrint(i[1])
 #     print(40*"-")
+print(BidirectionalSearch(table))
 result = AStar(table)
-print(result)
-print(len(result))
-print(target(2))
-print(target(4))
+# print(result)
+# print(len(result))
+# print(target(2))
+# print(target(4))
