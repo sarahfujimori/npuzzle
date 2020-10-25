@@ -136,126 +136,59 @@ def target(n):
 
 def BidirectionalSearch(state):
     target_1 = target(len(state))
+
     frontier = [(0, state)]
     backtier = [(0, target_1)]
+
     discovered_frontier = set([state])
     discovered_backtier = set([target])
+
     parents_frontier = {(0, state): None}
     parents_backtier = {(0, target): None}
+
     path = []
 
     while len(frontier) != 0 and len(backtier) != 0: 
         current_state_frontier = frontier.pop(0)
         current_state_backtier = backtier.pop(0)
         
-        discovered_1.add(current_state_frontier[1])
-        discovered_2.add(current_state_backtier[1])
+        discovered_frontier.add(current_state_frontier[1])
+        discovered_backtier.add(current_state_backtier[1])
 
-        if discovered_1.intersection(discovered_2): 
+        if len(discovered_frontier.intersection(discovered_backtier)) > 0: 
+            intersect = list(discovered_frontier.intersection(discovered_backtier))[0]
+            
+            if intersect == current_state_frontier[1]:
+
+            else: 
+
+            
+            while parents_frontier.get((current_state_frontier[0], current_state_frontier[1])) != None:
+                path.insert(0, current_state_frontier[0])
+                current_state_frontier = parents_frontier.get((current_state_frontier[0], current_state_frontier[1]))
+
+            while parents_backtier.get((current_state_backtier[0], current_state_backtier[1])) != None:
+                path.insert(0, current_state_backtier[0])
+                current_state_backtier = parents_backtier.get((current_state_backtier[0], current_state_backtier[1]))
+
             return path
-        else: 
-            BFS(frontier)
-            BFS(backtier)
-    
-        if current_state[1] in discovered_2:
-        '''
-            # Do this later, but remember that "this might now work" - Tyler 2020
-            while parents.get((current_state[0], current_state[1])) != None:
-                path.insert(0, current_state[0])
-                current_state = parents.get((current_state[0], current_state[1]))
-        '''
-        for neighbor in ComputeNeighbors(current_state[1]):
+
+
+        for neighbor in ComputeNeighbors(current_state_frontier[1]):
             # print(neighbor[0])
-            if neighbor[1] not in discovered_1:
+            if neighbor[1] not in discovered_frontier:
                 frontier.append(neighbor)
-                discovered_1.add(neighbor[1])
-                parents.update({(neighbor[0], neighbor[1]): current_state})
+                discovered_frontier.add(neighbor[1])
+                parents_frontier.update({(neighbor[0], neighbor[1]): current_state_frontier})
 
-
-
-        BFS_iteration(frontier, discovered_frontier, discovered_backtier, parents, path, 'forward')
-        BFS_iteration(backtier, discovered_backtier, discovered_frontier, parents, path, 'backward')
-
-        if discovered_1
-        '''
-        for i in range(len(frontier)): 
-            for j in range(len(backtier)):
-                if frontier[i] == backtier[j]:
-                    DebugPrint(frontier[i])
-                    result = path
-        '''
+        for neighbor in ComputeNeighbors(current_state_backtier[1]):
+            # print(neighbor[0])
+            if neighbor[1] not in discovered_backtier:
+                backtier.append(neighbor)
+                discovered_backtier.add(neighbor[1])
+                parents_backtier.update({(neighbor[0], neighbor[1]): current_state_backtier})
 
     return result
-
-
-def BFS_iteration(frontier, discovered_1, discovered_2, parents, path, direction):
-    if direction == 'forward':
-             
-        # BFS in forward direction
-        current = self.src_queue.pop(0)
-        connected_node = self.graph[current]
-             
-        while connected_node:
-            vertex = connected_node.vertex
-                 
-            if not self.src_visited[vertex]:
-                self.src_queue.append(vertex)
-                self.src_visited[vertex] = True
-                self.src_parent[vertex] = current
-                     
-                connected_node = connected_node.next
-    else:
-             
-        # BFS in backward direction
-        current = self.dest_queue.pop(0)
-        connected_node = self.graph[current]
-             
-        while connected_node:
-            vertex = connected_node.vertex
-                 
-            if not self.dest_visited[vertex]:
-                self.dest_queue.append(vertex)
-                self.dest_visited[vertex] = True
-                self.dest_parent[vertex] = current
-                     
-            connected_node = connected_node.next
-
-
-'''
-# GARBAGE SECOND VERSION
-def BFS_iteration(frontier, backtier, discovered, discovered_2, targets, parents, path):
-    pos = 0
-    while len(frontier) != 0 and len(backtier) != 0:
-        current_state_frontier = frontier.pop(0)
-        current_state_backtier = backtier.pop(0)
-        discovered.add(current_state_frontier[1])
-        discovered_2.add(current_state_backtier[1])
-        
-        while(discovered[pos] != discovered_2[pos]): 
-            if current_state_frontier in targets: 
-                while parents.get((current_state_frontier[0], current_state_frontier[1])) != None:
-                    path.insert(0, current_state_frontier[0])
-                    current_state_backtier = parents.get((current_state_frontier[0], current_state_frontier[1]))
-                return path
-
-            if current_state_backtier in targets: 
-                while parents.get((current_state_backtier[0], current_state_backtier[1])) != None:
-                    path.insert(0, current_state_backtier[0])
-                    current_state_backtier = parents.get((current_state_backtier[0], current_state_backtier[1]))
-                return path
-
-            for neighbor in ComputeNeighbors(current_state[1]):
-                # print(neighbor[0])
-                if neighbor[1] not in discovered:
-                    frontier.append(neighbor)
-                    discovered.add(neighbor[1])
-                    parents.update({(neighbor[0], neighbor[1]): current_state})
-
-            pos = pos + 1
-
-    print("FAIL")
-    return None
-'''
 
 # Provides heuristic for AStar function
 # Returns: sum of L1 distances to goal for each block
