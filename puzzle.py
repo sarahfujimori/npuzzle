@@ -16,7 +16,7 @@ def profile(f):
 def memoize(f):
     memo = {}
     def helper(x):
-        if x not in memo:            
+        if x not in memo:
             memo[x] = f(x)
         return memo[x]
     return helper
@@ -93,6 +93,15 @@ def flatten(nested_list):
 # Return True if state is goal and False otherwise
 def IsGoal(state):
     return flatten(list(list(i) for i in state)) == list(range(1, len(state)**2)) + [0]
+
+# Returns True if the first row and column are correct
+def IsPGoal(state, iterations):
+    if len(state) == 2:
+        return IsGoal(state)
+    
+    x = interations * (len(state) + iterations + 1) + 1
+    if state[0] == range( + 1, x + len(state)):
+
 
 # Check if the target can be reached through the current state
 # Source: https://www.geeksforgeeks.org/check-instance-15-puzzle-solvable/
