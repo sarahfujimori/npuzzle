@@ -170,9 +170,11 @@ def BFS(state, iterations=0):
 # Use DFS algorithm to find solution to puzzle.
 # Returns: a sequence of tiles to reach goal, None if no solution found
 @profile
-def DFS(state):
-    if not isSolvable(state):
+def DFS(state, iterations=0):
+    if iterations == 0 and not isSolvable(state):
         return None
+    if len(state) == 1:
+        return []
     frontier = [(0, state)]
     discovered = set([state])
     parents = {(0, state): None}
@@ -180,11 +182,13 @@ def DFS(state):
     while len(frontier) != 0:
         current_state = frontier.pop(0)
         discovered.add(current_state[1])
-        if IsGoal(current_state[1]):
+        if IsPGoal(current_state[1], iterations):
+            new_state = current_state[1][1:]
+            new_state = tuple([row[1:] for row in new_state])
             while parents.get((current_state[0], current_state[1])) != None:
                 path.insert(0, current_state[0])
                 current_state = parents.get((current_state[0], current_state[1]))
-            return path
+            return path + DFS(new_state, iterations+1)
         for neighbor in ComputeNeighbors(current_state[1]):
             if neighbor[1] not in discovered:
                 frontier.insert(0, neighbor)
