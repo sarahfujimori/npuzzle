@@ -2,6 +2,24 @@ import copy
 import random
 import queue
 from time import sleep
+import time
+
+def profile(f):
+    def g(arg):
+        start = time.time()
+        ans = f(arg)
+        end = time.time()
+        print(f.__name__ + " " + str(arg) + " took " + str(end-start) + " seconds")
+        return ans
+    return g
+
+def memoize(f):
+    memo = {}
+    def helper(x):
+        if x not in memo:            
+            memo[x] = f(x)
+        return memo[x]
+    return helper
 
 # Returns a tuple of tuples representation of a state from a pile
 def LoadFromFile(filepath):
@@ -38,6 +56,7 @@ def swap_tiles(state, r1, c1, r2, c2):
 
 # Computes neighbors of a state
 # Return a collection of pairs: (tile moved into hole, new state reached)
+@memoize
 def ComputeNeighbors(state):
     N = len(state)
     # find 0
@@ -75,9 +94,41 @@ def flatten(nested_list):
 def IsGoal(state):
     return flatten(list(list(i) for i in state)) == list(range(1, len(state)**2)) + [0]
 
-# Use AStar algorithm to find solution to puzzle.
+# Check if the target can be reached through the current state
+# Source: https://www.geeksforgeeks.org/check-instance-15-puzzle-solvable/
+# Returns true if solvable, false otherwise
+def isSolvable(state):
+    N = len(state)
+    l = flatten(list(list(i) for i in state))
+    l.remove(0)
+
+    # count inversions
+    count = 0
+    for i in range(len(l)):
+        for j in range(len(l)):
+            if i < j and l[i] > l[j]:       
+                count += 1
+    if N % 2 == 1 and count % 2 == 0:
+        return True
+    else:
+        # find hole coords
+        for r in range(N):
+            for c in range(N):
+                if state[r][c] == 0:
+                    hole_r = r
+                    hole_c = c
+        row_count_bottom = N - hole_r       # Returns 1 if last row, 2 if second to last row, etc.
+        if count % 2 == 1 and row_count_bottom % 2 == 0:
+            return True
+        elif count % 2 == 0 and row_count_bottom % 2 == 1:
+            return True
+    return False
+
+# Use BFS algorithm to find solution to puzzle.
 # Returns: a sequence of tiles to reach goal, None if no solution found
 def BFS(state):
+    if not isSolvable(state):
+        return None
     frontier = [(0, state)]
     discovered = set([state])
     parents = {(0, state): None}
@@ -91,7 +142,6 @@ def BFS(state):
                 current_state = parents.get((current_state[0], current_state[1]))
             return path
         for neighbor in ComputeNeighbors(current_state[1]):
-            # print(neighbor[0])
             if neighbor[1] not in discovered:
                 frontier.append(neighbor)
                 discovered.add(neighbor[1])
@@ -99,9 +149,11 @@ def BFS(state):
     print("FAIL")
     return None
 
-# Use AStar algorithm to find solution to puzzle.
+# Use DFS algorithm to find solution to puzzle.
 # Returns: a sequence of tiles to reach goal, None if no solution found
 def DFS(state):
+    if not isSolvable(state):
+        return None
     frontier = [(0, state)]
     discovered = set([state])
     parents = {(0, state): None}
@@ -122,29 +174,29 @@ def DFS(state):
     print("FAIL")
     return None
 
-#returns state representation of target
+#Returns state representation of target 
 def target(n):
     l = [list(range(n * i + 1, n * (i + 1) + 1)) for i in range(n)]
     l[-1][-1] = 0
     return tuple(tuple(row) for row in l)
 
-# GOAL: 
-# Get each row of nodes for both frontier and backtier
-# Compare all the nodes from that row
-# If there are any commonalities, then you're done
-# Otherwise, continue to the next row of nodes
-
+# Use Bidirectional Search to find a path from state to target
+# Get each row of nodes for both frontier and backtier; compare all the nodes from that row
+# If there are any commonalities, then you're done; otherwise, continue to the next row of nodes
+# Returns: None if not solvable, list of tiles to target otherwise
 def BidirectionalSearch(state):
+    if not isSolvable(state):
+        return None
     target_1 = target(len(state))
 
     frontier = [(0, state)]
     backtier = [(0, target_1)]
 
     discovered_frontier = set([state])
-    discovered_backtier = set([target])
+    discovered_backtier = set([target_1])
 
-    parents_frontier = {(0, state): None}
-    parents_backtier = {(0, target): None}
+    parents_frontier = {state: []}
+    parents_backtier = {target_1: []}
 
     path = []
 
@@ -157,34 +209,24 @@ def BidirectionalSearch(state):
 
         if len(discovered_frontier.intersection(discovered_backtier)) > 0: 
             intersect = list(discovered_frontier.intersection(discovered_backtier))[0]
-            
-            if intersect == current_state_frontier[1]:
-                while parents_frontier.get((current_state_frontier[0], current_state_frontier[1])) != None:
-                    path.insert(0, current_state_frontier[0])
-                    current_state_frontier = parents_frontier.get((current_state_frontier[0], current_state_frontier[1]))
-            else:
-                while parents_backtier.get((current_state_backtier[0], current_state_backtier[1])) != None:
-                    path.insert(0, current_state_backtier[0])
-                    current_state_backtier = parents_backtier.get((current_state_backtier[0], current_state_backtier[1]))
-
-            return path
+            path_1 = parents_frontier[intersect]
+            path_2 = list(reversed(parents_backtier[intersect]))
+            return path_1 + path_2
 
 
         for neighbor in ComputeNeighbors(current_state_frontier[1]):
-            # print(neighbor[0])
             if neighbor[1] not in discovered_frontier:
                 frontier.append(neighbor)
                 discovered_frontier.add(neighbor[1])
-                parents_frontier.update({(neighbor[0], neighbor[1]): current_state_frontier})
+                parents_frontier.update({neighbor[1]: parents_frontier[current_state_frontier[1]] + [neighbor[0]]})
 
         for neighbor in ComputeNeighbors(current_state_backtier[1]):
-            # print(neighbor[0])
             if neighbor[1] not in discovered_backtier:
                 backtier.append(neighbor)
                 discovered_backtier.add(neighbor[1])
-                parents_backtier.update({(neighbor[0], neighbor[1]): current_state_backtier})
+                parents_backtier.update({neighbor[1]: parents_backtier[current_state_backtier[1]] + [neighbor[0]]})
 
-    return result
+    return None
 
 # Provides heuristic for AStar function
 # Returns: sum of L1 distances to goal for each block
@@ -205,6 +247,8 @@ def h(state):
 # Use AStar algorithm to find solution to puzzle.
 # Returns: a sequence of tiles to reach goal, None if no solution found
 def AStar(state):
+    if not isSolvable(state):
+        return None
     frontier = queue.PriorityQueue()
     frontier.put((0, (0, state, 0)))           # Heuristic, (tile, state, cost from start to state) 
     discovered = set([state])
@@ -243,7 +287,9 @@ print(h(table))
 # print(20*"-")
 # table = swap_tiles(table, 3, 3, 3, 2)
 # table = swap_tiles(table, 3, 2, 3, 1)
-table = shuffle(table)
+# table = shuffle(table, 30)
+table = ((1, 3, 4, 8), (6, 2, 7, 0), (5, 9, 10, 12), (13, 14, 11, 15))
+print(table)
 DebugPrint(table)
 # print(h(table))
 # print("Neighbors: " + 40*"-")
@@ -254,8 +300,6 @@ DebugPrint(table)
 #     print(40*"-")
 print(BFS(table))
 print(BidirectionalSearch(table))
-result = AStar(table)
-# print(result)
-# print(len(result))
-# print(target(2))
-# print(target(4))
+print(AStar(table))
+# state = ((3, 9, 1, 15), (14, 11, 4, 6), (13, 0, 10, 12), (2, 7, 8, 5))
+# print(isSolvable(state))
