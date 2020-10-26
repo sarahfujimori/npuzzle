@@ -110,7 +110,7 @@ def isSolvable(state):
                 count += 1
     if N % 2 == 1 and count % 2 == 0:
         return True
-    else:
+    elif N % 2 == 0:
         # find hole coords
         for r in range(N):
             for c in range(N):
@@ -126,6 +126,7 @@ def isSolvable(state):
 
 # Use BFS algorithm to find solution to puzzle.
 # Returns: a sequence of tiles to reach goal, None if no solution found
+@profile
 def BFS(state):
     if not isSolvable(state):
         return None
@@ -151,6 +152,7 @@ def BFS(state):
 
 # Use DFS algorithm to find solution to puzzle.
 # Returns: a sequence of tiles to reach goal, None if no solution found
+@profile
 def DFS(state):
     if not isSolvable(state):
         return None
@@ -184,6 +186,7 @@ def target(n):
 # Get each row of nodes for both frontier and backtier; compare all the nodes from that row
 # If there are any commonalities, then you're done; otherwise, continue to the next row of nodes
 # Returns: None if not solvable, list of tiles to target otherwise
+@profile
 def BidirectionalSearch(state):
     if not isSolvable(state):
         return None
@@ -246,6 +249,7 @@ def h(state):
 
 # Use AStar algorithm to find solution to puzzle.
 # Returns: a sequence of tiles to reach goal, None if no solution found
+@profile
 def AStar(state):
     if not isSolvable(state):
         return None
@@ -288,9 +292,9 @@ print(h(table))
 # table = swap_tiles(table, 3, 3, 3, 2)
 # table = swap_tiles(table, 3, 2, 3, 1)
 # table = shuffle(table, 30)
-table = ((1, 3, 4, 8), (6, 2, 7, 0), (5, 9, 10, 12), (13, 14, 11, 15))
-print(table)
-DebugPrint(table)
+# table = ((1, 3, 4, 8), (6, 2, 7, 0), (5, 9, 10, 12), (13, 14, 11, 15))
+# print(table)
+# DebugPrint(table)
 # print(h(table))
 # print("Neighbors: " + 40*"-")
 # n = ComputeNeighbors(table)
@@ -299,6 +303,7 @@ DebugPrint(table)
 #     DebugPrint(i[1])
 #     print(40*"-")
 print(BFS(table))
+print(DFS(table))
 print(BidirectionalSearch(table))
 print(AStar(table))
 # state = ((3, 9, 1, 15), (14, 11, 4, 6), (13, 0, 10, 12), (2, 7, 8, 5))
