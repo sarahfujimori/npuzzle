@@ -169,7 +169,6 @@ def BFS(state, iterations=0):
 
 # Use DFS algorithm to find solution to puzzle.
 # Returns: a sequence of tiles to reach goal, None if no solution found
-@profile
 def DFS(state, iterations=0):
     if iterations == 0 and not isSolvable(state):
         return None
@@ -312,7 +311,7 @@ print(h(table))
 # print(20*"-")
 # table = swap_tiles(table, 3, 3, 3, 2)
 # table = swap_tiles(table, 3, 2, 3, 1)
-table = shuffle(table, 50)
+table = shuffle(table, 20)
 # table = ((1, 3, 4, 8), (6, 2, 7, 0), (5, 9, 10, 12), (13, 14, 11, 15))
 print(table)
 DebugPrint(table)
@@ -323,9 +322,9 @@ DebugPrint(table)
 #     print(i[0])
 #     DebugPrint(i[1])
 #     print(40*"-")
-# print(DFS(table))
-# print(BidirectionalSearch(table))
-# print(AStar(table))
+print(DFS(table))
+print(BidirectionalSearch(table))
+print(AStar(table))
 start = time.time()
 print(BFS(table))
 print(time.time() - start)
