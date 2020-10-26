@@ -96,12 +96,16 @@ def IsGoal(state):
 
 # Returns True if the first row and column are correct
 def IsPGoal(state, iterations):
-    if len(state) == 2:
-        return IsGoal(state)
-    
-    x = interations * (len(state) + iterations + 1) + 1
-    if state[0] == range( + 1, x + len(state)):
-
+    original = target(len(state) + iterations)
+    original_row = original[iterations]
+    original_col = tuple([original[i][iterations] for i in range(len(state)+iterations)])
+    goal_row = original_row[iterations:]
+    goal_col = original_col[iterations:]
+    state_row = state[0]
+    state_col = tuple([state[i][0] for i in range(len(state))])
+    if state_row == goal_row and state_col == goal_col:
+        return True
+    return False
 
 # Check if the target can be reached through the current state
 # Source: https://www.geeksforgeeks.org/check-instance-15-puzzle-solvable/
@@ -135,10 +139,12 @@ def isSolvable(state):
 
 # Use BFS algorithm to find solution to puzzle.
 # Returns: a sequence of tiles to reach goal, None if no solution found
-@profile
-def BFS(state):
-    if not isSolvable(state):
+
+def BFS(state, iterations=0):
+    if iterations == 0 and not isSolvable(state):
         return None
+    if len(state) == 1:
+        return []
     frontier = [(0, state)]
     discovered = set([state])
     parents = {(0, state): None}
@@ -146,11 +152,13 @@ def BFS(state):
     while len(frontier) != 0:
         current_state = frontier.pop(0)
         discovered.add(current_state[1])
-        if IsGoal(current_state[1]):
+        if IsPGoal(current_state[1], iterations):
+            new_state = current_state[1][1:]
+            new_state = tuple([row[1:] for row in new_state])
             while parents.get((current_state[0], current_state[1])) != None:
                 path.insert(0, current_state[0])
                 current_state = parents.get((current_state[0], current_state[1]))
-            return path
+            return path + BFS(new_state, iterations+1)
         for neighbor in ComputeNeighbors(current_state[1]):
             if neighbor[1] not in discovered:
                 frontier.append(neighbor)
@@ -300,10 +308,10 @@ print(h(table))
 # print(20*"-")
 # table = swap_tiles(table, 3, 3, 3, 2)
 # table = swap_tiles(table, 3, 2, 3, 1)
-# table = shuffle(table, 30)
+table = shuffle(table, 50)
 # table = ((1, 3, 4, 8), (6, 2, 7, 0), (5, 9, 10, 12), (13, 14, 11, 15))
-# print(table)
-# DebugPrint(table)
+print(table)
+DebugPrint(table)
 # print(h(table))
 # print("Neighbors: " + 40*"-")
 # n = ComputeNeighbors(table)
@@ -311,9 +319,13 @@ print(h(table))
 #     print(i[0])
 #     DebugPrint(i[1])
 #     print(40*"-")
+# print(DFS(table))
+# print(BidirectionalSearch(table))
+# print(AStar(table))
+start = time.time()
 print(BFS(table))
-print(DFS(table))
-print(BidirectionalSearch(table))
-print(AStar(table))
+print(time.time() - start)
 # state = ((3, 9, 1, 15), (14, 11, 4, 6), (13, 0, 10, 12), (2, 7, 8, 5))
 # print(isSolvable(state))
+s = ((6, 7, 8), (6, 11, 12), (14, 15, 0))
+print(IsPGoal(s, 1))
